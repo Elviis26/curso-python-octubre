@@ -3,7 +3,9 @@
 # SELECT * FROM users WHERE edad = 10
 
 from sqlalchemy.orm import declarative_base , sessionmaker
-from sqlalchemy import Column, String, Integer, create_engine
+from sqlalchemy import Column, String, Integer, create_engine, ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
+
 
 Base = declarative_base()
 
@@ -15,6 +17,18 @@ class Alumno(Base):
     apellido = Column(String, nullable = False)
     carnet = Column(Integer, nullable = False)
 
+    @hybrid_property
+    def nombre_completo(self):
+        return f"{self.nombres} {self.apellido}"
+
+class Nota(Base):
+    __tablename__ = "notas"
+
+    id = Column(Integer, primary_key = True)
+    curso = Column(String)
+    nota = Column(Integer)
+    alumno_id = Column(Integer, ForeignKey("alumnos.id"))
+   # alumnos = relationship("Alumno" , back_populates = "notas")
 
 engine = create_engine("sqlite:///:memory:")
 
@@ -62,3 +76,5 @@ session.commit()
 alumnos = session.query(Alumno).all()
 print(alumnos[0].nombres)
 print(alumnos[1].nombres) 
+
+print(luis.nombre_completo)
