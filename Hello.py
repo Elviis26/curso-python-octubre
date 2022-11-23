@@ -8,3 +8,5 @@ print("hola desde")
 print("hola a todos2")
 
 print("prueba de github")
+
+print("haciendo stash")
