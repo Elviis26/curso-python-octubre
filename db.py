@@ -2,7 +2,7 @@
 # UPDATE INTO  users (nombre, edad, genero) VVALUES ("elvis", 10 , "masculino") WHERE  name == elvis
 # SELECT * FROM users WHERE edad = 10
 
-from sqlalchemy.orm import declarative_base , sessionmaker
+from sqlalchemy.orm import declarative_base , sessionmaker , relationship
 from sqlalchemy import Column, String, Integer, create_engine, ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -16,6 +16,7 @@ class Alumno(Base):
     nombres = Column(String, nullable = False)
     apellido = Column(String, nullable = False)
     carnet = Column(Integer, nullable = False)
+    notas = relationship("Nota", back_populates = "alumnos")
 
     @hybrid_property
     def nombre_completo(self):
@@ -28,7 +29,7 @@ class Nota(Base):
     curso = Column(String)
     nota = Column(Integer)
     alumno_id = Column(Integer, ForeignKey("alumnos.id"))
-   # alumnos = relationship("Alumno" , back_populates = "notas")
+    alumnos = relationship("Alumno" , back_populates = "notas")
 
 engine = create_engine("sqlite:///:memory:")
 
@@ -78,3 +79,18 @@ print(alumnos[0].nombres)
 print(alumnos[1].nombres) 
 
 print(luis.nombre_completo)
+
+nota =  Nota(
+    curso = "matematicas",
+    nota = 89,
+    alumno_id = luis.id
+)
+
+session.add(nota)
+session.commit()
+
+session.refresh(nota)
+print(nota.alumnos.nombres)
+session.refresh(luis)
+print(luis.notas[0].curso)
+print(nota.alumnos.notas[0].alumnos.nombre_completo)
